@@ -40,19 +40,19 @@ def redraw_screen(player, stars, meteorites, score, score_font):
     return stars, meteorites
 
 class Meteorite:
-    def __init__(self, radius, x, y, velocity, color):
-        self.radius = radius
+    def __init__(self, radius, x, y, velocity, image):
+        self.radius = radius * 2
         self.x = x
         self.y = y
 
-        self.color = color
+        self.image = pygame.transform.scale(image, (radius, radius))
         self.velocity = velocity
     
     def draw(self):
-        pygame.draw.circle(WINDOW, self.color, (self.x, self.y), self.radius)
+        WINDOW.blit(self.image, (self.x, self.y))
 
     def get_collider(self):
-        return pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        return pygame.Rect(self.x, self.y, self.radius // 2, self.radius // 2)
 
 class Star:
     def __init__(self, radius, x, y, velocity, color):
@@ -67,7 +67,7 @@ class Star:
         pygame.draw.circle(WINDOW, self.color, (self.x, self.y), self.radius)
 
 class Player:
-    def __init__(self, width, height, velocity):
+    def __init__(self, width, height, velocity, image):
         self.width = width
         self.height = height
 
@@ -75,15 +75,17 @@ class Player:
         self.y = SCREEN_HEIGHT - SCREEN_HEIGHT // 4
 
         self.velocity = velocity
+
+        self.image = pygame.transform.scale(image, (width, height))
     
     def draw(self):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x, self.y, self.width, self.height))
+        WINDOW.blit(self.image, (self.x, self.y))
     
     def get_collider(self):
         return pygame.Rect(self.x, self.y, self.width, self.height)
 
 if __name__ == "__main__":
-    player = Player(50, 50, 10)
+    player = Player(50, 72, 15, pygame.image.load("assets/img/spaceshuttle.png"))
     clock = pygame.time.Clock()
 
     score_font = pygame.font.Font("assets/font/font.ttf", 64)
@@ -105,6 +107,9 @@ if __name__ == "__main__":
     player.draw()
     pygame.display.update()
 
+    pygame.mixer.music.load("assets/audio/main_theme.wav")
+    pygame.mixer.music.play(1000000)
+
     running = True
     while running:
         clock.tick(FPS)
@@ -122,12 +127,13 @@ if __name__ == "__main__":
         
         if meteorite_spawn_interval <= 0:
             meteorite_spawn_interval = meteorite_spawn_interval_max
-            meteorites.append(Meteorite(random.randint(20, 100), random.randint(0, SCREEN_WIDTH), 0, meteorite_velocity, (0, 0, 255)))
+            width = random.randint(50, 200)
+            meteorites.append(Meteorite(width, random.randint(0, SCREEN_WIDTH - width), 0, meteorite_velocity, pygame.image.load("assets/img/meteorite.png")))
             score += 1
             if meteorite_spawn_interval_max >= FPS * 1.2:
-                meteorite_spawn_interval_max -= FPS // 3
+                meteorite_spawn_interval_max -= FPS // 10
             if meteorite_velocity <= max_meteorite_velocity:
-                meteorite_velocity += 0.1
+                meteorite_velocity += 0.5
         else:
             meteorite_spawn_interval -= 1
 
