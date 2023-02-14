@@ -93,7 +93,7 @@ if __name__ == "__main__":
     meteorite_spawn_interval_max = FPS * 5
     meteorite_spawn_interval = meteorite_spawn_interval_max
     meteorite_velocity = 10
-    max_meteorite_velocity = 25
+    max_meteorite_velocity = 20
 
     meteorites = []
 
